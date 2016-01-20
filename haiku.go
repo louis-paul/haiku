@@ -3,8 +3,9 @@
 package haiku
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 )
 
 const (
@@ -15,6 +16,8 @@ const (
 )
 
 var (
+	randomSource = rand.Reader
+
 	// adjectives is the list of adjectives to use as the first part of the
 	// haiku
 	adjectives = []string{
@@ -46,13 +49,21 @@ var (
 
 // Haiku returns a name of the form "lively-flower-9136"
 func Haiku() string {
-	adjective := adjectives[rand.Int31n(int32(len(adjectives)-1))]
-	noun := nouns[rand.Int31n(int32(len(nouns)-1))]
-	number := minSuffix + rand.Int31n(maxSuffix-minSuffix)
+	adjective := adjectives[rnd(len(adjectives))]
+	noun := nouns[rnd(len(nouns))]
+	number := minSuffix + rnd(maxSuffix-minSuffix)
 	return fmt.Sprintf(
 		"%s-%s-%d",
 		adjective,
 		noun,
 		number,
 	)
+}
+
+func rnd(max int) int {
+	i, err := rand.Int(randomSource, big.NewInt(int64(max)))
+	if err != nil {
+		panic(err)
+	}
+	return int(i.Int64())
 }
